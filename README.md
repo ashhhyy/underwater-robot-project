@@ -4,14 +4,7 @@
 This project is an autonomous underwater robot capable of submerging, navigating underwater, detecting objects (fish, rocks, trash) using machine learning, and monitoring data via a web dashboard.
 
 ## Repository Structure
-- **ESP32/** - ESP32-CAM and motor control code
-      -main/
-          -main.ino 
-      -src/
-          -camera_capture.cpp
-          -motor_control.cpp
-          -sensor_readings.cpp
-          
+- **ESP32/** - ESP32-CAM and motor control code         
 - **ml-model/** - Dataset and ML training scripts
 - **backend/** - Flask API with user authentication and data logging
 - **dashboard/** - React web dashboard for user login and data monitoring
