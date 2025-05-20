@@ -7,7 +7,6 @@ This project is an autonomous underwater robot capable of submerging, navigating
 - **ESP32/** - ESP32-CAM and motor control code
       main/
           main.ino 
-          
       src/
           camera_capture.cpp
           motor_control.cpp
