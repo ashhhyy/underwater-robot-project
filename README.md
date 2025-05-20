@@ -4,7 +4,15 @@
 This project is an autonomous underwater robot capable of submerging, navigating underwater, detecting objects (fish, rocks, trash) using machine learning, and monitoring data via a web dashboard.
 
 ## Repository Structure
-- **firmware/** - ESP32-CAM and motor control code
+- **ESP32/** - ESP32-CAM and motor control code
+      main/
+          main.ino 
+          
+      src/
+          camera_capture.cpp
+          motor_control.cpp
+          sensor_readings.cpp
+          
 - **ml-model/** - Dataset and ML training scripts
 - **backend/** - Flask API with user authentication and data logging
 - **dashboard/** - React web dashboard for user login and data monitoring
@@ -12,7 +20,7 @@ This project is an autonomous underwater robot capable of submerging, navigating
 
 ## Setup Instructions
 
-### Firmware
+### ESP32
 - Use Arduino IDE or PlatformIO to upload firmware from `firmware/` to ESP32-CAM.
 - Connect motors, sensors as per wiring diagrams in docs.
 
@@ -37,22 +45,3 @@ This project is an autonomous underwater robot capable of submerging, navigating
   python app.py
   ```
 
-### Dashboard
-- Navigate to `dashboard/`
-- Install Node.js dependencies:
-  ```
-  npm install
-  ```
-- Start the React app:
-  ```
-  npm start
-  ```
-- Access at http://localhost:3000
-
-## User Authentication
-- Register users by sending POST requests to `/register`
-- Login via dashboard
-
-## Notes
-- Modify API URLs in frontend as needed.
-- Secure backend before production use.
