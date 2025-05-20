@@ -5,12 +5,12 @@ This project is an autonomous underwater robot capable of submerging, navigating
 
 ## Repository Structure
 - **ESP32/** - ESP32-CAM and motor control code
-      main/
-          main.ino 
-      src/
-          camera_capture.cpp
-          motor_control.cpp
-          sensor_readings.cpp
+      -main/
+          -main.ino 
+      -src/
+          -camera_capture.cpp
+          -motor_control.cpp
+          -sensor_readings.cpp
           
 - **ml-model/** - Dataset and ML training scripts
 - **backend/** - Flask API with user authentication and data logging
