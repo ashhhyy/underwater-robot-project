@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Underwater ROV Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Underwater ROV Dashboard</h1>
+
+    <button onclick="togglePower()">Power</button>
+    
+    <div>
+        <p>Status: <span id="powerStatus">Loading...</span></p>
+        <p>Detected Object: <span id="objectDetected">Loading...</span></p>
+        <p>Distance (cm): <span id="distance">Loading...</span></p>
+        <p>Depth (m): <span id="depth">Loading...</span></p>
+    </div>
+
+    
+
+    <script>
+        async function fetchData() {
+            try {
+                const response = await axios.get('/get-data');
+                const data = response.data;
+
+                document.getElementById('powerStatus').textContent = data.power_status;
+                document.getElementById('objectDetected').textContent = data.object_detected;
+                document.getElementById('distance').textContent = data.distance;
+                document.getElementById('depth').textContent = data.depth;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function togglePower() {
+            try {
+                const response = await axios.post('/toggle-power');
+                document.getElementById('powerStatus').textContent = response.data.new_status;
+            } catch (error) {
+                console.error('Error toggling power:', error);
+            }
+        }
+
+        // Auto refresh every 3 seconds
+        setInterval(fetchData, 3000);
+        fetchData(); // Initial call
+    </script>
+</body>
+</html>

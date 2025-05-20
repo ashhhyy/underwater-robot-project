@@ -1,81 +1,42 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_cors import CORS
-import datetime
+from flask import Flask, request, jsonify, render_template
+import os
+from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///robot.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+# Global state and data
+system_state = {"power": False}
+data_store = {
+    "left_distance": None,
+    "right_distance": None,
+    "depth": None,
+    "pitch": None,
+    "roll": None
+}
 
-# Models
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(20), default='student')  # 'admin' or 'student'
+@app.route("/")
+def index():
+    return render_template("index.html", system_state=system_state, data=data_store)
 
-class DetectionLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    object_type = db.Column(db.String(50))  # fish, rock, trash
-    image_url = db.Column(db.String(255))   # path to image on server
+@app.route("/control", methods=["POST"])
+def control():
+    content = request.json
+    if "state" in content:
+        system_state["power"] = content["state"]
+        return jsonify({"success": True, "power": system_state["power"]})
+    return jsonify({"success": False, "message": "Missing 'state' in request."}), 400
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
+@app.route("/send-data", methods=["POST"])
+def receive_data():
+    content = request.json
+    for key in ["left_distance", "right_distance", "depth", "pitch", "roll"]:
+        if key in content:
+            data_store[key] = content[key]
+    return jsonify({"success": True})
 
-# Routes
-@app.route('/register', methods=['POST'])
-def register():
-    data = request.json
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'message': 'User already exists'}), 400
-    hashed_password = generate_password_hash(data['password'])
-    user = User(username=data['username'], email=data['email'], password_hash=hashed_password, role=data.get('role', 'student'))
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'message': 'User registered successfully'})
+@app.route("/get-data", methods=["GET"])
+def get_data():
+    return jsonify({"power": system_state["power"], **data_store})
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    user = User.query.filter_by(username=data['username']).first()
-    if user and check_password_hash(user.password_hash, data['password']):
-        # Return user info and token (token omitted for simplicity)
-        return jsonify({'message': 'Login successful', 'username': user.username, 'role': user.role})
-    return jsonify({'message': 'Invalid credentials'}), 401
-
-@app.route('/detections', methods=['POST'])
-def add_detection():
-    data = request.json
-    detection = DetectionLog(
-        user_id=data['user_id'],
-        object_type=data['object_type'],
-        image_url=data['image_url']
-    )
-    db.session.add(detection)
-    db.session.commit()
-    return jsonify({'message': 'Detection logged'})
-
-@app.route('/detections', methods=['GET'])
-def get_detections():
-    detections = DetectionLog.query.all()
-    result = []
-    for d in detections:
-        result.append({
-            'id': d.id,
-            'user_id': d.user_id,
-            'timestamp': d.timestamp.isoformat(),
-            'object_type': d.object_type,
-            'image_url': d.image_url
-        })
-    return jsonify(result)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)
